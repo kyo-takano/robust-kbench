@@ -27,7 +27,7 @@ def eval_torch_runtime(
     forward: bool = True,
     config_fname: Optional[str] = None,
 ):
-    start_time = time.time()
+    start_time = time.perf_counter()
     OP_TYPE = "FORWARD" if forward else "BACKWARD"
     print(f"EVALUATE - START - {OP_TYPE} => Torch native - {eval_type}...")
     # Run eval for torch and compile once
@@ -47,13 +47,13 @@ def eval_torch_runtime(
         config_fname=config_fname,
     )
     graceful_eval_cleanup()
-    end_time = time.time()
+    end_time = time.perf_counter()
     print(
         f"EVALUATE -  DONE - {OP_TYPE} => Torch native - Avg. Runtime: {torch_native_results['summary']['avg_mean_time']:.2f}s - Time: {end_time - start_time:.2f}s"
     )
 
     print(f"EVALUATE - START - {OP_TYPE} => Torch compile - {eval_type}...")
-    start_time = time.time()
+    start_time = time.perf_counter()
     torch_compile_results = torch_eval(
         task_dir=task_dir,
         compile=True,
@@ -70,7 +70,7 @@ def eval_torch_runtime(
         config_fname=config_fname,
     )
     graceful_eval_cleanup()
-    end_time = time.time()
+    end_time = time.perf_counter()
     print(
         f"EVALUATE -  DONE - {OP_TYPE} => Torch compile - Avg. Runtime: {torch_compile_results['summary']['avg_mean_time']:.2f}s - Time: {end_time - start_time:.2f}s"
     )
@@ -85,7 +85,7 @@ def compile_cuda_kernel(
     timeout: int = 300,
     debug: bool = False,
 ):
-    start_time = time.time()
+    start_time = time.perf_counter()
     cuda_code_print = "/".join(cuda_code_path.split("/")[-3:])
     print(f"COMPILE  - START => CUDA code {cuda_code_print}...")
     compile_results = cuda_compile(
@@ -97,7 +97,7 @@ def compile_cuda_kernel(
         debug=debug,
     )
     graceful_eval_cleanup()
-    end_time = time.time()
+    end_time = time.perf_counter()
     print(
         f"COMPILE  -  DONE => CUDA code {cuda_code_print} - Time: {end_time - start_time:.2f}s"
     )
@@ -119,7 +119,7 @@ def correct_cuda_kernel(
     forward: bool = True,
     config_fname: Optional[str] = None,
 ):
-    start_time = time.time()
+    start_time = time.perf_counter()
     unique_id = str(uuid.uuid4())[:8]
     ext_dir = os.path.join(tempfile.gettempdir(), f"torch_extensions_{unique_id}")
     os.makedirs(ext_dir, exist_ok=True)
@@ -142,7 +142,7 @@ def correct_cuda_kernel(
         forward=forward,
         config_fname=config_fname,
     )
-    end_time = time.time()
+    end_time = time.perf_counter()
     print(
         f"TESTING  -  DONE - {OP_TYPE} => CUDA code {cuda_code_print} - Correct: {correct_results['summary']['correct']} - Time: {end_time - start_time:.2f}s"
     )
@@ -170,7 +170,7 @@ def eval_cuda_kernel(
     print(
         f"EVALUATE - START - {OP_TYPE} => CUDA code {cuda_code_print} - {eval_type}..."
     )
-    start_time = time.time()
+    start_time = time.perf_counter()
     cuda_results = cuda_eval(
         task_dir=task_dir,
         cuda_fname=cuda_code_path,
@@ -186,7 +186,7 @@ def eval_cuda_kernel(
         forward=forward,
         config_fname=config_fname,
     )
-    end_time = time.time()
+    end_time = time.perf_counter()
     print(
         f"EVALUATE -  DONE - {OP_TYPE} => CUDA code {cuda_code_print} - Avg. Runtime: {cuda_results['summary']['avg_mean_time']:.2f}s - Time: {end_time - start_time:.2f}s"
     )
@@ -206,7 +206,7 @@ def prof_cuda_kernel(
     forward: bool = True,
     config_fname: Optional[str] = None,
 ):
-    start_time = time.time()
+    start_time = time.perf_counter()
     # only print last 3 subfolders of cuda_code_path
     cuda_code_print = "/".join(cuda_code_path.split("/")[-3:])
     OP_TYPE = "FORWARD" if forward else "BACKWARD"
@@ -224,7 +224,7 @@ def prof_cuda_kernel(
         config_fname=config_fname,
     )
     graceful_eval_cleanup()
-    end_time = time.time()
+    end_time = time.perf_counter()
     # Get keys that have not None values
     prof_obtained = [k for k, v in prof_results.items() if v is not None]
     print(

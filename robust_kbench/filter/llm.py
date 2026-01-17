@@ -81,7 +81,7 @@ class LLMClient:
         temps = []
         # Modify prompt for each iteration to encourage diversity
         base_msg = msg
-        start_t = time.time()
+        start_t = time.perf_counter()
         print(f"Sampling {n} diverse kernel proposals sequentially.")
         for i in range(n):
             if i == 0:
@@ -117,7 +117,7 @@ class LLMClient:
                 )
 
             print(
-                f"==> {i+1}/{n} - kernel proposal: {model} - Time: {time.time() - start_t:.2f}"
+                f"==> {i+1}/{n} - kernel proposal: {model} - Time: {time.perf_counter() - start_t:.2f}"
             )
             contents.append(content)
             histories.append(new_history)
@@ -231,11 +231,11 @@ class LLMClient:
         ]
 
         # Create pool and run queries in parallel with error handling
-        start_t = time.time()
+        start_t = time.perf_counter()
         print(f"Sampling {n} diverse kernel proposals in parallel.")
         with mp.Pool() as pool:
             results = list(pool.imap_unordered(query_worker, worker_args))
-        print(f"Time taken for {n} parallel queries: {time.time() - start_t:.2f}")
+        print(f"Time taken for {n} parallel queries: {time.perf_counter() - start_t:.2f}")
 
         # Filter out failed results
         results = [r for r in results if r[0] is not None]
